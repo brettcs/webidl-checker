@@ -272,7 +272,7 @@ def extractIdls(doc,extraRequestHeaders=[]):
             htmldocio = StringIO(htmldoc)
             # Extract WebIDLs from source document in invidual files
             try:
-                tree = html5lib.parse(htmldoc, treebuilder="lxml")
+                tree = html5lib.html5parser.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("lxml"), tokenizer=html5lib.tokenizer.HTMLTokenizer).parse(htmldoc)
             except Exception, e:
                 raise UnparseableDocumentException(str(e))
             # and then get extracts IDLs through XPath            
