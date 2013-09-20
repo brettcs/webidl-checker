@@ -286,7 +286,7 @@ def extractIdls(doc,extraRequestHeaders=[]):
             title = tree.xpath("/html/head/title/text()",namespaces=ns)
             if len(title):
                 srcheaders["title"] = title[0]
-            idls = tree.xpath("/html/body//pre[@class='idl' or contains(@class,'webidl') or html:code[@class='idl-code']]",namespaces=ns)
+            idls = tree.xpath("/html/body//pre[@class='idl' or contains(@class,'webidl') or code[@class='idl-code']]",namespaces=ns)
             counter = 0
             for idlHtml in idls:
                 counter = counter + 1
