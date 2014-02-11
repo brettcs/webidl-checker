@@ -49,7 +49,7 @@ Page = """Content-Type: text/html;charset=utf-8
 <h1>WebIDL checker%s</h1>
 """
 Page2 = """
-<form method="GET">
+<form method="POST">
 <p><label for="doc">Source document</label>: <input id="doc" type="url" name="doc" value="%s"> (Web IDL in HTML, or plain text Web IDL fragments)</p>
 <p><label>Ouput format: <select name="output"><option value="html">HTML</option><option value="text" %s>Text (GNU Error format)</option></select></label></p>
 <p><input type="submit" value="Check on-line Web IDL"></p>
@@ -74,20 +74,15 @@ powered by <a href="https://github.com/dontcallmedom/webidl-checker/">webidl-che
 
 def serveRequest():
     fields = cgi.FieldStorage()
-
-    if (not fields.has_key('doc') and not fields.has_key('input')):
+    doc = fields.getfirst('doc', "")
+    inp = fields.getfirst('input', "")
+    if not (doc or inp):
         print Page % ("", "")
 	print Page2 % ("","","", "")
     else:
-        doc = ""
-        inp = ""
-        if fields.has_key('doc') and fields['doc'].value:
-            doc = fields['doc'].value
-        elif fields.has_key('input'):
-            inp = fields['input'].value
         output = "html"
         textoutputselected=""
-        if fields.has_key('output') and fields['output'].value=='text':
+        if fields.getfirst('output') == 'text':
             # we'll output using http://www.gnu.org/prep/standards/standards.html#Errors
             output = "text"
             textoutputselected=" selected='selected'"
@@ -172,7 +167,8 @@ def printOutputAsText(errors,idls,doc):
     sys.exit()
 
 def printOutputAsHTML(errors,idls,doc,title,inp,xmlOutput):
-    htmltitle = " <a href='%s'>%s</a>" % (cgi.escape(doc, True), cgi.escape(title))
+    esc_doc = cgi.escape(doc, True)
+    htmltitle = " <a href='%s'>%s</a>" % (esc_doc, cgi.escape(title))
     print Page  % (" " + cgi.escape(title), htmltitle)
     print "<p>Results of checking %s.</p>" % (htmltitle)
     if len(errors):
@@ -224,8 +220,8 @@ def printOutputAsHTML(errors,idls,doc,title,inp,xmlOutput):
             print transform(xmldoc)
             print "</div>"
     else:
-        print "<p class='error'>No WebIDL found in the document at <a href='%s'>%s</a>.</p>" % (doc,doc)
-    print Page2 % (cgi.escape(doc, True),"",inp,"")
+        print "<p class='error'>No WebIDL found in the document at <a href='%s'>%s</a>.</p>" % (esc_doc, esc_doc)
+    print Page2 % (esc_doc, "", cgi.escape(inp), "")
 
 def extractIdls(doc,extraRequestHeaders=[]):
     # the function below is used to replace
